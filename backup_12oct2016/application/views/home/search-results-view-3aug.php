@@ -1,0 +1,178 @@
+
+		<?php $get = $this->input->get(); ?>
+	<div class="spacer">
+		<div class="container">
+			<div class="row">
+				<div class="col-sm-12">
+					<div class="mod-box">
+						<div class="row">
+							<div class="col-sm-8">
+								<p>
+									Esame medico:<strong><?php echo $get['q'] ?></strong>
+										Città:<strong><?php echo $get['city'] ?> </strong>
+								</p>
+							</div>
+							<div class="col-sm-4">
+								<button class="btn btn-primary pull-right" id="btn-search">
+									<i class="fa fa-search"></i> Modifica
+								</button>
+							</div>
+						</div>
+					</div>
+					<div id="search-form-box" style="text-align: center; padding-bottom: 10px;" class="hide">
+				
+						<div class="row">
+							<div class="col-sm-12">
+								<form class="form-inline" method="get">
+								  <div class="form-group">
+								    <label  for="">Esame medico</label>
+								    <input type="text" class="form-control" name="q"  value="<?php echo $get['q'] ?>" placeholder='Esame medico' >
+								  </div>
+                                    <?php if(!empty($common_names)): ?>
+                                    <div class="form-group">
+                                        <label  for="">nome comune</label>
+                                        <select name="common_name"  class="form-control"  >
+                                            <option value=""></option>
+                                        <?php foreach($common_names as $row) : ?>
+                                          <option <?php echo trim($common_name)==trim($row->common_name) ? "selected":"" ?> ><?php echo $row->common_name ?></option>
+                                        <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                    <?php endif; ?>
+								  <div class="form-group">
+								    <label for="">Citta</label>
+								    <input type="text" class="form-control" name="city" value="<?php echo $get['city'] ?>" placeholder="Citta">
+								  </div>
+								  
+								  <button type="submit" class="btn btn-default">Ricerca</button>
+								</form>
+							</div>
+						</div>
+					</div>
+					<div class="blue-wrapper">
+						<div class="row">
+							<div class="col-sm-6 col-xs-4">
+								<div class="dropdown">
+									<button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+										Ordina per
+									<span class="caret"></span>
+									</button>
+									<ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+										<li><a href="#">Default</a></li>
+										<li><a href="#">costo</a></li>
+										<li><a href="#">suggerito dagli utenti</a></li>
+									</ul>
+								</div>
+							</div>
+							<div class="col-sm-6 col-xs-8">
+								<div class="pull-right wow slideInUp">
+									<div class="btn-group" role="group" aria-label="...">
+										<a href="<?php echo base_url('search').'?'.$_SERVER['QUERY_STRING']; ?>" class="btn btn-default">Elenco</a>
+										<a href="<?php echo base_url('map-search').'?'.$_SERVER['QUERY_STRING']; ?>"class="btn btn-default">Mappa</a>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-6">
+								<div class="res-desc">
+									<strong id="result-count"><?php echo $total_rows ?></strong>  risultati in <strong><?php echo $get['q'] ?>&nbsp;<?php echo $get['city'] ?></strong>,  in ordine di  <strong>Tempo di attesa</strong>
+								</div>
+							</div>
+							<div class="col-sm-6">
+								
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-4">
+								<div class="google-map wow slideInUp"    style="width:348px;height:380px;" >1111
+									<?php 
+								$map_url ="http://maps.googleapis.com/maps/api/staticmap?";
+								foreach ($structures as $key => $structure) : 
+									if($key==0){
+										$map_url .= "center=".$structure->address." ".$structure->city." ".$structure->province."&zoom=7&scale=false&size=382x382&maptype=roadmap&format=png&visual_refresh=true";
+									}
+									if($key<2){
+									$map_url .="&markers=icon:".base_url()."assets/img/map-marker.png%7Cshadow:true%7C".$structure->address." ".$structure->city." ".$structure->province;
+									}
+								endforeach;
+								 ?>
+									<a href="<?php echo base_url('map-search').'?'.$_SERVER['QUERY_STRING']; ?>"><img id="img-map" height="360" width="328" src="<?php echo $map_url ?>" ></a>
+								</div>
+								
+								<?php $this->load->view('home/include/search-filter-view') ?>
+							</div>
+							<div class="col-sm-8">
+								<div class="row">
+									<div class="col-sm-12">
+										<input type="hidden" id="actual_link" value="<?php echo $actual_link ?>">
+										<div class="sr-results" id="result-list">
+											<ul>
+											<?php foreach ($structures as $key => $structure) : ?>
+												<li class="wow slideInUp">
+													<div class="row">
+														<div class="col-sm-3">
+															<div class="img-result">
+                                                                <a href="<?php echo base_url() ?>hospitals/<?php echo $structure->id ?>?exam_id=<?php echo $structure->exam_id ?>"><img class="img-responsive col-sm-12" src="<?php echo ($structure->imageurl!=null) ? $structure->imageurl : base_url('assets/img/not-available.png') ?>" /></a>
+															</div>
+														</div>
+														<div class="col-sm-9">
+																<div class="col-sm-12">
+																	<div><a href="<?php echo base_url() ?>hospitals/<?php echo $structure->id ?>?exam_id=<?php echo $structure->exam_id ?>"><strong><?php echo $structure->hospital ?> </strong></a></div>
+																	<div style="font-size: 10px;">
+																		<?php echo $structure->address ?> 
+																		
+																	</div>														
+																</div>
+															
+																<div class="col-sm-12" style="padding: 0px; margin-top: 2px;">
+																	<div class="col-sm-6" style="font-size: 11px;">
+																		<?php echo $structure->exam_type ?>
+																	</div>
+																	<div class="col-sm-6">
+																		
+																		<div class="col-sm-6">
+																				<div class="" style="font-size: 11px;">COSTO</div>
+																				<div class="" style="font-size: 11px;"><b><?php echo ($structure->price==null) ? 'SSN':'€  '.$structure->price  ?></b></div>
+																		</div>
+																		<div class="col-sm-6" style="padding: 0px;">
+																			
+																				<div class="" style="font-size: 11px;">TEMPO DI ATTESA</div>
+																				<div class="" style="font-size: 11px;" ><b><?php echo ($structure->official_waiting_days==null) ? 0:$structure->official_waiting_days  ?> giomi</b></div>
+																			
+																		</div>
+																		<div class="col-sm-12" >
+																			<div class="btn-group" role="group" aria-label="...">
+																			  	<a href="<?php echo base_url('map-search')?>?q=<?=urlencode($structure->exam_type)?>&city=<?=$structure->city?>&eid=<?=$structure->id?>" target="_blank" class="btn btn-default" style="font-size: 11px;" >Mappa</a>
+																				<a href="http://<?php echo $structure->website ?>" target="_blank" class="btn btn-default" style="font-size: 11px;">Vai al sito</a>
+																			</div>
+																			
+																		</div>
+																	
+																	</div>
+																
+															</div>
+															
+														</div>
+													</div>
+												</li>
+											<?php endforeach; ?>
+											</ul>
+										</div>
+									</div>
+								</div>
+								
+								<br />
+								
+								<div class="row">
+									<div class="col-sm-12" id="result-pagination">
+										<?php echo $pagination_links ?>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
